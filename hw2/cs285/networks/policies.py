@@ -52,15 +52,20 @@ class MLPPolicy(nn.Module):
             parameters,
             learning_rate,
         )
-
+        self.ac_dim = ac_dim
         self.discrete = discrete
 
     @torch.no_grad()
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         """Takes a single observation (as a numpy array) and returns a single action (as a numpy array)."""
         # TODO: implement get_action
-        action = None
-
+        if self.discrete:
+            if np.random.random() < 0.01:
+                action = np.random.randint(self.ac_dim)
+            else:
+                action = ptu.to_numpy(self(ptu.from_numpy(obs)).argmax())
+        else:
+            action = None #
         return action
 
     def forward(self, obs: torch.FloatTensor):
@@ -71,11 +76,12 @@ class MLPPolicy(nn.Module):
         """
         if self.discrete:
             # TODO: define the forward pass for a policy with a discrete action space.
-            pass
+            action_logits = self.logits_net(obs)
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
-            pass
-        return None
+            action_logits = self.mean_net(obs)
+
+        return action_logits
 
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
         """Performs one iteration of gradient descent on the provided batch of data."""

@@ -2,7 +2,7 @@ from collections import OrderedDict
 import numpy as np
 import copy
 from cs285.networks.policies import MLPPolicy
-import gym
+import gymnasium as gym
 import cv2
 from cs285.infrastructure import pytorch_util as ptu
 from typing import Dict, Tuple, List
@@ -15,29 +15,30 @@ def sample_trajectory(
     env: gym.Env, policy: MLPPolicy, max_length: int, render: bool = False
 ) -> Dict[str, np.ndarray]:
     """Sample a rollout in the environment from a policy."""
-    ob = env.reset()
+    ob, _ = env.reset()
     obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
     steps = 0
     while True:
         # render an image
-        if render:
-            if hasattr(env, "sim"):
-                img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
-            else:
-                img = env.render(mode="single_rgb_array")
-            image_obs.append(
-                cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
-            )
+        # if render:
+        #     if hasattr(env, "sim"):
+        #         img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
+        #     else:
+        #         img = env.render(mode="single_rgb_array")
+        #     image_obs.append(
+        #         cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
+        #     )
 
         # TODO use the most recent ob and the policy to decide what to do
-        ac: np.ndarray = None
+        ac: np.ndarray = policy.get_action(ob)
 
         # TODO: use that action to take a step in the environment
-        next_ob, rew, done, _ = None, None, None, None
+        next_ob, rew, terminated, truncated, _ = env.step(ac)
+        done = terminated or truncated
 
         # TODO rollout can end due to done, or due to max_length
         steps += 1
-        rollout_done: bool = None
+        rollout_done: bool = True if steps >= max_length or done else False
 
         # record result of taking that action
         obs.append(ob)
@@ -54,7 +55,7 @@ def sample_trajectory(
 
     return {
         "observation": np.array(obs, dtype=np.float32),
-        "image_obs": np.array(image_obs, dtype=np.uint8),
+        # "image_obs": np.array(image_obs, dtype=np.uint8),
         "reward": np.array(rewards, dtype=np.float32),
         "action": np.array(acs, dtype=np.float32),
         "next_observation": np.array(next_obs, dtype=np.float32),

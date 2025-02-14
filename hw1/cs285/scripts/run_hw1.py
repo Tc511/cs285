@@ -8,7 +8,7 @@ Functions to edit:
 import pickle
 import os
 import time
-import gym
+import gymnasium as gym
 
 import numpy as np
 import torch
@@ -62,7 +62,7 @@ def run_training_loop(params):
     #############
 
     # Make the gym environment
-    env = gym.make(params['env_name'], render_mode=None)
+    env = gym.make(params['env_name'], render_mode="human")
     env.reset(seed=seed)
 
     # Maximum length for episodes
@@ -132,7 +132,7 @@ def run_training_loop(params):
             # TODO: collect `params['batch_size']` transitions
             # HINT: use utils.sample_trajectories
             # TODO: implement missing parts of utils.sample_trajectory
-            paths, envsteps_this_batch = TODO
+            paths, envsteps_this_batch = utils.sample_trajectories(env, actor, params['ep_len'], MAX_VIDEO_LEN)
 
             # relabel the collected obs with actions from a provided expert policy
             if params['do_dagger']:
@@ -141,7 +141,7 @@ def run_training_loop(params):
                 # TODO: relabel collected obsevations (from our policy) with labels from expert policy
                 # HINT: query the policy (using the get_action function) with paths[i]["observation"]
                 # and replace paths[i]["action"] with these expert labels
-                paths = TODO
+                paths[0]['action'] = expert_policy.get_action(paths[0]['observation'])
 
         total_envsteps += envsteps_this_batch
         # add collected data to replay buffer
@@ -156,8 +156,9 @@ def run_training_loop(params):
           # HINT1: how much data = params['train_batch_size']
           # HINT2: use np.random.permutation to sample random indices
           # HINT3: return corresponding data points from each array (i.e., not different indices from each array)
-          # for imitation learning, we only need observations and actions.  
-          ob_batch, ac_batch = TODO
+          # for imitation learning, we only need observations and actions.
+          sample_data = np.random.permutation(params['train_batch_size'])
+          ob_batch, ac_batch = replay_buffer.obs[sample_data], replay_buffer.acs[sample_data]
 
           # use the sampled data to train an agent
           train_log = actor.update(ob_batch, ac_batch)
@@ -221,7 +222,7 @@ def main():
 
     parser.add_argument('--batch_size', type=int, default=1000)  # training data collected (in the env) during each iteration
     parser.add_argument('--eval_batch_size', type=int,
-                        default=1000)  # eval data collected (in the env) for logging metrics
+                        default=5000)  # eval data collected (in the env) for logging metrics
     parser.add_argument('--train_batch_size', type=int,
                         default=100)  # number of sampled data points to be used per gradient/train step
 
