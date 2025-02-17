@@ -1,10 +1,11 @@
 import os
 import time
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from cs285.agents.pg_agent import PGAgent
 
-import os
-import time
 
 import gymnasium as gym
 import numpy as np
@@ -27,7 +28,7 @@ def run_training_loop(args):
     ptu.init_gpu(use_gpu=not args.no_gpu, gpu_id=args.which_gpu)
 
     # make the gym environment
-    env = gym.make(args.env_name, render_mode="human")
+    env = gym.make(args.env_name, render_mode="None")
     discrete = isinstance(env.action_space, gym.spaces.Discrete)
 
     # add action noise, if needed
