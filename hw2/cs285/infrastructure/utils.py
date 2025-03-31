@@ -20,14 +20,14 @@ def sample_trajectory(
     steps = 0
     while True:
         # render an image
-        # if render:
-        #     if hasattr(env, "sim"):
-        #         img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
-        #     else:
-        #         img = env.render(mode="single_rgb_array")
-        #     image_obs.append(
-        #         cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
-        #     )
+        if render:
+            if hasattr(env, "sim"):
+                img = env.sim.render(camera_name="track", height=500, width=500)[::-1]
+            else:
+                img = env.render()
+            image_obs.append(
+                cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC)
+            )
 
         # TODO use the most recent ob and the policy to decide what to do
         ac: np.ndarray = policy.get_action(ob)[0]
@@ -55,7 +55,7 @@ def sample_trajectory(
 
     return {
         "observation": np.array(obs, dtype=np.float32),
-        # "image_obs": np.array(image_obs, dtype=np.uint8),
+        "image_obs": np.array(image_obs, dtype=np.uint8),
         "reward": np.array(rewards, dtype=np.float32),
         "action": np.array(acs, dtype=np.float32),
         "next_observation": np.array(next_obs, dtype=np.float32),

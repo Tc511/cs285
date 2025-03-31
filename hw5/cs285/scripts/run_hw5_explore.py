@@ -1,11 +1,14 @@
 import time
 import argparse
 import pickle
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from cs285.agents import agents as agent_types
 from cs285.envs import Pointmass
 
-import os
+
 import time
 
 import gym
@@ -179,7 +182,10 @@ def run_training_loop(config: dict, logger: Logger, args: argparse.Namespace):
     # Render final heatmap
     fig = visualize(env_pointmass, agent, replay_buffer.observations[:config["total_steps"]])
     fig.suptitle("State coverage")
-    filename = os.path.join("exploration_visualization", f"{config['log_name']}.png")
+    filename = os.path.join("../../exploration_visualization", f"{config['log_name']}.png")
+    directory = os.path.dirname(filename)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory)
     fig.savefig(filename)
     print("Saved final heatmap to", filename)
 

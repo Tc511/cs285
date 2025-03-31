@@ -28,7 +28,7 @@ def run_training_loop(args):
     ptu.init_gpu(use_gpu=not args.no_gpu, gpu_id=args.which_gpu)
 
     # make the gym environment
-    env = gym.make(args.env_name, render_mode="None")
+    env = gym.make(args.env_name, render_mode="rgb_array")
     discrete = isinstance(env.action_space, gym.spaces.Discrete)
 
     # add action noise, if needed

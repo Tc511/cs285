@@ -1,7 +1,9 @@
 import pickle
 import time
 import argparse
-
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from cs285.agents.dqn_agent import DQNAgent
 import cs285.env_configs
 from cs285.envs import Pointmass

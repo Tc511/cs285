@@ -520,7 +520,7 @@ class Pointmass(gym.Env):
             x = np.array([j, j + 1]) / float(width)
             y0 = np.array([i, i]) / float(height)
             y1 = np.array([i + 1, i + 1]) / float(height)
-            ax.fill_between(x, y0, y1, color="grey")
+            ax.fill_between(x, y0, y1, color="grey", where=y1 > y0)
         ax.set_xlim([0, 1])
         ax.set_ylim([0, 1])
 
